@@ -1,0 +1,67 @@
+---
+title: Using SMB Volumes in .NET Apps
+owner: Windows
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to use SMB Volumes in a .NET Application. Using an example notes application, we will create an application that reads and writes to a file, within a SMB Volume.
+
+
+## <a id='prerequisites'></a>Prerequisites 
+
+The following are required to utilize SMB Volumes:
+<ul>
+<li>Azure account</li>
+<li>An accessible SMB Volume in Azure Cloud</li>
+	<li>If you don’t have an accessible SMB Volume, refer to Create a file share in Azure Files in the Azure documentation.</li>
+<li>An accessible SMB Volume UNC Path to specify the IP address</li>
+<li>SMB Username</li>
+<li>SMB Password</li>
+</ul>
+
+## <a id='prerequisites'></a>SMB Mounting With Steeltoe
+1. Using CF CLI or Apps Manager, add the following environment variables to your local computer or the computer you are deploying to: 
+	1. `SMB_PATH`
+	1. `SMB_USERNAME`
+	1. `SMB_PASSWORD`
+	</br>
+	Where:
+	`SMB_PATH` is the path to your SMB. 
+	`SMB_USERNAME` is your Azure account username.
+	`SMB_PASSWORD` is  is your Azure account password.
+
+If you are using Steeltoe, add the environment variables to the config server. For more information, see [Config Server Provider](https://steeltoe.io/docs/steeltoe-configuration/#2-0-config-server-provider)in the Steeltoe documentation.
+<p class="note"><strong>Note: </strong> If Visual Studio does not detect these new environment variables, restart Visual Studio.
+</p>
+1. Create a new file in your solution named `SMBConfiguration.cs`. This file is the single representation of your SMB Volume configuration and reads the connection data from the environment variables you established in the previous step.
+
+		```
+		// SMBConfiguration.cs
+		using System;
+
+		namespace NetFrameworkApp.Controllers
+		{
+		    public class SMBConfiguration
+		    {
+		        public String GetSharePath()
+		        {
+		            return Environment.GetEnvironmentVariable("SMB_PATH");
+		        }
+
+		        public String GetUserName()
+		        {
+		            return Environment.GetEnvironmentVariable("SMB_USERNAME");
+		        }
+
+		        public String GetPassword()
+		        {
+		            return Environment.GetEnvironmentVariable("SMB_PASSWORD");
+		        }
+		    }
+		}
+		```
+1. Create a new MVC Controller named `NoteController`. This file creates a controller endpoint that reads a the example note file.
+
+
+
