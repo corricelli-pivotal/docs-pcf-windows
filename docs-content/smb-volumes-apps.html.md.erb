@@ -5,7 +5,7 @@ owner: Windows
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use SMB Volumes in a .NET Application. Using an example notes application, we create an application that reads and writes to a file, within a SMB Volume.
+This topic describes how to use SMB Volumes in a .NET Application. Using an example application, we create an application that reads and writes to an <code>note.txt</code> file, within a SMB Volume.
 
 
 ## <a id='prerequisites'></a>Prerequisites 
@@ -13,38 +13,48 @@ This topic describes how to use SMB Volumes in a .NET Application. Using an exam
 The following are required to utilize SMB Volumes:
 <ul>
 <li>Azure account</li>
-<li>An accessible SMB Volume in Azure Cloud</li>
-		<li>If you don’t have an accessible SMB Volume, refer to Create a file share in Azure Files in the Azure documentation.</li>
-<li>An accessible SMB Volume UNC Path to specify the IP address</li>
+<li>An accessible SMB Volume in Azure Cloud with a UNC path</li>
+    <ul>
+	<li>If you don’t have an accessible SMB Volume, refer to Create a file share in Azure Files in the Azure documentation.</li>
+    </ul>
 <li>SMB Username</li>
 <li>SMB Password</li>
 </ul>
 
+## <a id='steeltoe'></a> Using SMB Volumes in .NET Apps with Steeltoe
 Steeltoe is a set of client libraries. Pivotal encourages using Steeltoe in SMB Mounting, as doing so enables your application to be cloud native.
 However, you can utilize SMB Mounting with or without Steeltoe.
 Using Steeltoe requires modifying your application code.
-If you do not wish to modify your application code, proceed without using Steeltoe.
+If you do not wish to modify your application code, proceed without using Steeltoe. For more information, see the <a href="https://steeltoe.io/docs/">Steeltoe Documentation</a>.
 
 ## <a id='smb-mounting'></a>SMB Mounting
 <ol>
-<li>Using CF CLI or Apps Manager, add <code>SMB_PATH</code>, <code>SMB_USERNAME</code>, <code>SMB_PASSWORD</code>  as environment variables to your local computer or the computer you are deploying to; 
+<li>Using CF CLI or Apps Manager, add <code>SMB_PATH</code>, <code>SMB_USERNAME</code>, and <code>SMB_PASSWORD</code>  as environment variables to your local computer or the computer you are deploying to: 
+</br>
 </br>
 	Where:
 	<ul>
-	<li><code>SMB_PATH</code>. This is the path to your SMB. If you are using the Windows 1709 Stemcell your UNC is the IP of the machine you are using. If you are using the Windows 1803 Stemcell your UNC is the FQDN of the machine you are using.</li>
-	<li><code>SMB_USERNAME</code>. This is your Azure account username.</li>
-	<li><code>SMB_PASSWORD</code>. This is  is your Azure account password.</li>
+	<li><code>SMB_PATH</code> is the path to your SMB.
+    <ul>
+    <li>If you are using the Windows 1709 Stemcell, your UNC is the IP of the machine you are using.</li>
+    <li>If you are using the Windows 1803 Stemcell, your UNC is the FQDN of the machine you are using.</li>
+    </ul>
+	<li><code>SMB_USERNAME</code> is your Azure account username.</li>
+	<li><code>SMB_PASSWORD</code> is  is your Azure account password.</li>
 	</ul>
-If you are using Steeltoe, add the environment variables to the config server. For more information, see <a href="https://steeltoe.io/docs/steeltoe-configuration/#2-0-config-server-provider">Config Server Provider</a> in the Steeltoe documentation.
-
+</br>
+If you are using Steeltoe:
+<ul>
+<li>Add the environment variables to the config server. For more information, see <a href="https://steeltoe.io/docs/steeltoe-configuration/#2-0-config-server-provider">Config Server Provider</a> in the Steeltoe documentation.</li>
+</br>
+</ul>
 If you are not using Steeltoe:
 <ul>
-<li>Add the aforementioned environment variables to using AppsManager or the CF CLI.</li>
-<li>Add the following to your `.profile.bat`: `net use z: %SMB_SHARE_IP_UNCs% %USER_PASSWORD% /USER:%USER_NAME%`</li>
+<li>Add the following to your <code>.profile.bat</code>: <code>net use z: %SMB-PATH% %SMB-PASSWORD% /USER:SMB-USERNAME%</code></li>
 </ul>
 <p class="note"><strong>Note:</strong> If Visual Studio does not detect these new environment variables, restart Visual Studio.
 </p>
-<li> Create a new file in your solution named <code>SMBConfiguration.cs</code>. This file is the single representation of your SMB Volume configuration and reads the connection data from the environment variables you established in the previous step.
+<li> In Visual Studio, create a new file in your solution named <code>SMBConfiguration.cs</code>. This file is the single representation of your SMB Volume configuration and reads the connection data from the environment variables you established in the previous step.
 
 <pre>
 // SMBConfiguration.cs
@@ -71,10 +81,11 @@ namespace NetFrameworkApp.Controllers
     }
 }
 </pre>
-<li> Create a new MVC Controller named <code>NoteController</code>. This file creates a controller endpoint that reads a the example note file.
-	Modify <code>NoteController.cs</code> in the following ways:
+<li> In Visual studio, create a new MVC Controller named <code>NoteController</code>. This file creates a controller endpoint that reads a the example note file.
+<li>Modify <code>NoteController.cs</code> in the following ways:</li>
+<ul>
 <li> Add <code>Steeltoe.Common</code> and <code>Steeltoe.Common.Net</code > to your application with a Package Manager of your choice. If you are not using Steeltoe, ignore this step.
-<li> Add the code to read from a file named <code>note.txt</code>, which does not exist yet but <code>FileMode.OpenOrCreate</code> allows it to be created. Please refer to the example code snippet below which reads the contents of the note file and stashes the note's content in the Viewbag.
+<li> Add the code to read from a file named <code>note.txt</code>, which does not exist yet but <code>FileMode.OpenOrCreate</code> allows it to be created. Refer to the example code snippet below which reads the contents of the note file and stashes the <code>note.txt</code> content in the Viewbag.
 <pre>
 // NoteController.cs
 using System;
@@ -110,20 +121,23 @@ namespace NetFrameworkApp.Controllers
     }
 }
 </pre>
-<li>Create a subdirectory in <code>Views</code> named <code>Note</code>.</li>
-<li>Create a new View named <code>Index</code>.</li>
-<li>Create a <code>Index.cshtml</code> file that contains the following:</li>
+</ul>
+<li>In Visual Studio, create a subdirectory in <code>Views</code> named <code>Note</code>.</li>
+<li>In Visual Studio, create a new View named <code>Index</code>.</li>
+<li>In Visual Studio, create a <code>Index.cshtml</code> file that contains the following:</li>
 <pre>
 // Index.cshtml
 
 @ViewBag.Note
 </pre>
-Running the application now would show an empty page with no errors. 
+Running the application now would show an empty page with no errors.
+</br> 
 <li>Modify the <code>Index.cshtml</code> file to contain a form. This form posts to a yet to be created update endpoint and also displays our note inside a text area.</li>
 <pre>
 <big>
 <xmp>
 // Index.cshtml
+...
 <form action="/note/update" method="post">    
     <textarea name="note">@ViewBag.Note</textarea>    
     <div>
@@ -134,9 +148,9 @@ Running the application now would show an empty page with no errors.
 </big>
 </pre>
 
-<li>Modify the <code>NoteController.cs</code> to have an update endpoint. This endpoint saves the data posted to the endpoint back into the <code>note.txt</code>.
+<li>Modify the <code>NoteController.cs</code> to have an update endpoint. This endpoint saves the data posted to the endpoint back into the <code>note.txt</code>. Refer to the example code snippet below.
 </li>
-<li>Modify the <code>NoteController.cs</code> to redirect to the index page so that we can see what we just saved.</li>
+<li>Modify the <code>NoteController.cs</code> to include the ControllerBase class <code>RedirectToAction</code> method, which redirects to the index page so the user can see what was just saved. Refer to the example code snippet below. For more infromation, see the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction?view=aspnetcore-2.2">Microsoft .NET API Browser Documentation</a></li>
 <pre>
 // NoteController.cs
 namespace NetFrameworkApp.Controllers
