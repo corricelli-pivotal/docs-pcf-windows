@@ -5,7 +5,7 @@ owner: Windows
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use SMB Volumes in a .NET Application. Using an example notes application, we will create an application that reads and writes to a file, within a SMB Volume.
+This topic describes how to use SMB Volumes in a .NET Application. Using an example notes application, we create an application that reads and writes to a file, within a SMB Volume.
 
 
 ## <a id='prerequisites'></a>Prerequisites 
@@ -20,17 +20,28 @@ The following are required to utilize SMB Volumes:
 <li>SMB Password</li>
 </ul>
 
-## <a id='with-steeltoe'></a>SMB Mounting With Steeltoe
+Steeltoe is a set of client libraries. Pivotal encourages using Steeltoe in SMB Mounting, as doing so enables your application to be cloud native.
+However, you can utilize SMB Mounting with or without Steeltoe.
+Using Steeltoe requires modifying your application code.
+If you do not wish to modify your application code, proceed without using Steeltoe.
+
+## <a id='smb-mounting'></a>SMB Mounting
 <ol>
 <li>Using CF CLI or Apps Manager, add <code>SMB_PATH</code>, <code>SMB_USERNAME</code>, <code>SMB_PASSWORD</code>  as environment variables to your local computer or the computer you are deploying to; 
 </br>
 	Where:
 	<ul>
-	<li><code>SMB_PATH</code>. This is the path to your SMB.</li>
+	<li><code>SMB_PATH</code>. This is the path to your SMB. If you are using the Windows 1709 Stemcell your UNC is the IP of the machine you are using. If you are using the Windows 1803 Stemcell your UNC is the FQDN of the machine you are using.</li>
 	<li><code>SMB_USERNAME</code>. This is your Azure account username.</li>
 	<li><code>SMB_PASSWORD</code>. This is  is your Azure account password.</li>
 	</ul>
 If you are using Steeltoe, add the environment variables to the config server. For more information, see <a href="https://steeltoe.io/docs/steeltoe-configuration/#2-0-config-server-provider">Config Server Provider</a> in the Steeltoe documentation.
+
+If you are not using Steeltoe:
+<ul>
+<li>Add the aforementioned environment variables to using AppsManager or the CF CLI.</li>
+<li>Add the following to your `.profile.bat`: `net use z: %SMB_SHARE_IP_UNCs% %USER_PASSWORD% /USER:%USER_NAME%`</li>
+</ul>
 <p class="note"><strong>Note:</strong> If Visual Studio does not detect these new environment variables, restart Visual Studio.
 </p>
 <li> Create a new file in your solution named <code>SMBConfiguration.cs</code>. This file is the single representation of your SMB Volume configuration and reads the connection data from the environment variables you established in the previous step.
@@ -62,7 +73,7 @@ namespace NetFrameworkApp.Controllers
 </pre>
 <li> Create a new MVC Controller named <code>NoteController</code>. This file creates a controller endpoint that reads a the example note file.
 	Modify <code>NoteController.cs</code> in the following ways:
-<li> Add <code>Steeltoe.Common</code> and <code>Steeltoe.Common.Net</code > to your application with a Package Manager of your choice.
+<li> Add <code>Steeltoe.Common</code> and <code>Steeltoe.Common.Net</code > to your application with a Package Manager of your choice. If you are not using Steeltoe, ignore this step.
 <li> Add the code to read from a file named <code>note.txt</code>, which does not exist yet but <code>FileMode.OpenOrCreate</code> allows it to be created. Please refer to the example code snippet below which reads the contents of the note file and stashes the note's content in the Viewbag.
 <pre>
 // NoteController.cs
@@ -110,6 +121,8 @@ namespace NetFrameworkApp.Controllers
 Running the application now would show an empty page with no errors. 
 <li>Modify the <code>Index.cshtml</code> file to contain a form. This form posts to a yet to be created update endpoint and also displays our note inside a text area.</li>
 <pre>
+<big>
+<xmp>
 // Index.cshtml
 <form action="/note/update" method="post">    
     <textarea name="note">@ViewBag.Note</textarea>    
@@ -117,7 +130,10 @@ Running the application now would show an empty page with no errors.
         <button type="submit">Update</button>
     </div>
 </form>
+</xmp>
+</big>
 </pre>
+
 <li>Modify the <code>NoteController.cs</code> to have an update endpoint. This endpoint saves the data posted to the endpoint back into the <code>note.txt</code>.
 </li>
 <li>Modify the <code>NoteController.cs</code> to redirect to the index page so that we can see what we just saved.</li>
@@ -147,5 +163,3 @@ namespace NetFrameworkApp.Controllers
 }
 </pre>
 </ol>
-
-
