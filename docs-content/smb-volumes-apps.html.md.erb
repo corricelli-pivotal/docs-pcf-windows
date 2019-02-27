@@ -5,7 +5,7 @@ owner: Windows
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to use SMB Volumes in a .NET Application. Using an example application, we create an application that reads and writes to an <code>note.txt</code> file, within a SMB Volume.
+This topic describes how to use SMB Volumes in a .NET Application. In this example, we create an application that reads and writes to an <code>note.txt</code> file, within a SMB Volume.
 
 
 ## <a id='prerequisites'></a>Prerequisites 
@@ -15,7 +15,7 @@ The following are required to utilize SMB Volumes:
 <li>Azure account</li>
 <li>An accessible SMB Volume in Azure Cloud with a UNC path</li>
     <ul>
-	<li>If you don’t have an accessible SMB Volume, refer to Create a file share in Azure Files in the Azure documentation.</li>
+	<li>If you do not have an accessible SMB Volume, refer to Create a file share in Azure Files in the Azure documentation.</li>
     </ul>
 <li>SMB Username</li>
 <li>SMB Password</li>
@@ -24,9 +24,9 @@ The following are required to utilize SMB Volumes:
 ## <a id='steeltoe'></a> Using SMB Volumes in .NET Apps with Steeltoe
 Steeltoe is a set of client libraries. Pivotal encourages using Steeltoe in SMB Mounting, as doing so enables your application to be cloud native.
 However, you can utilize SMB Mounting with or without Steeltoe.
-Using Steeltoe requires modifying your application code.
-If you do not wish to modify your application code, proceed without using Steeltoe. For more information, see the <a href="https://steeltoe.io/docs/">Steeltoe Documentation</a>.
-
+Using Steeltoe requires modifying your application code. For more information, see the <a href="https://steeltoe.io/docs/">Steeltoe Documentation</a>.
+</br>
+If you do not wish to modify your application code, proceed without using Steeltoe.
 ## <a id='smb-mounting'></a>SMB Mounting
 <ol>
 <li>Using CF CLI or Apps Manager, add <code>SMB_PATH</code>, <code>SMB_USERNAME</code>, and <code>SMB_PASSWORD</code>  as environment variables to your local computer or the computer you are deploying to: 
@@ -81,11 +81,9 @@ namespace NetFrameworkApp.Controllers
     }
 }
 </pre>
-<li> In Visual studio, create a new MVC Controller named <code>NoteController</code>. This file creates a controller endpoint that reads a the example note file. For more information on creating a Controller, see <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-controller?view=aspnetcore-2.2&tabs=visual-studio">Add a controller to an ASP.NET Core MVC app</a> in the Microsoft Documentation.
-<li>Modify <code>NoteController.cs</code> in the following ways:</li>
-<ul>
-<li> Add <code>Steeltoe.Common</code> and <code>Steeltoe.Common.Net</code > to your application with a Package Manager of your choice. If you are not using Steeltoe, ignore this step.
-<li> Add the code to read from a file named <code>note.txt</code>, which does not exist yet but <code>FileMode.OpenOrCreate</code> allows it to be created. Refer to the example code snippet below which reads the contents of the note file and stashes the <code>note.txt</code> content in the Viewbag.
+<li> In Visual studio, create a new MVC Controller named <code>NoteController</code>. This file creates a controller endpoint that reads a the example note file. For more information on creating a controller, see <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-controller?view=aspnetcore-2.2&tabs=visual-studio">Add a controller to an ASP.NET Core MVC app</a> in the Microsoft Documentation.</li>
+<li> In the command line, add <code>Steeltoe.Common</code> and <code>Steeltoe.Common.Net</code> to your application with a Package Manager of your choice. If you are not using Steeltoe, ignore this step.</li>
+<li> Edit <code>NoteController.cs</code> to read from a file named <code>note.txt</code>, which does not exist yet but the<code>FileMode.OpenOrCreate</code> method creates that file. Refer to the example code snippet below, which reads the contents of the note file and stashes the <code>note.txt</code> content in the Viewbag. If you are not using Steeltoe, ignore the reference to <code>Steeltoe.Common.Net</code>in the following code snippet.</li> 
 <pre>
 // NoteController.cs
 using System;
@@ -111,7 +109,7 @@ namespace NetFrameworkApp.Controllers
             using (var inputStream = new FileStream(Path.Combine(configuration.GetSharePath(), "note.txt"), FileMode.OpenOrCreate))
             using (var streamReader = new StreamReader(inputStream))
             {
-	    // Never display raw user input as HTML. Don’t do this in production code.
+	    // Never display raw user input as HTML. Do not do this in production code.
                 ViewBag.Note = streamReader.ReadToEnd();
             }
 
@@ -122,8 +120,8 @@ namespace NetFrameworkApp.Controllers
 }
 </pre>
 </ul>
-<li>In Visual Studio, create a subdirectory in <code>Views</code> named <code>Note</code>.</li>
-<li>In Visual Studio, create a new View named <code>Index</code>.</li>
+<li>In Visual Studio, create a subdirectory in <b>Views</b> named <code>Note</code>.</li>
+<li>In Visual Studio, create a new View named <code>Index</code>. For more information on Views, see <a href="https://docs.microsoft.com/en-us/aspnet/core/mvc/views/overview?view=aspnetcore-2.2">Views in ASP.NET Core MVC</a> and <a href="https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mvc-app/adding-view?view=aspnetcore-2.2&tabs=visual-studio">Add a view to an ASP.NET Core MVC app</a> in the Microsoft Documentation.</li>
 <li>In Visual Studio, create a <code>Index.cshtml</code> file that contains the following:</li>
 <pre>
 // Index.cshtml
@@ -131,7 +129,8 @@ namespace NetFrameworkApp.Controllers
 @ViewBag.Note
 </pre>
 Running the application now would show an empty page with no errors.
-</br> 
+</br>
+</br>
 <li>Modify the <code>Index.cshtml</code> file to contain a form. This form posts to a yet to be created update endpoint and also displays our note inside a text area.</li>
 <pre>
 <big>
@@ -150,7 +149,10 @@ Running the application now would show an empty page with no errors.
 
 <li>Modify the <code>NoteController.cs</code> to have an update endpoint. This endpoint saves the data posted to the endpoint back into the <code>note.txt</code>. Refer to the example code snippet below.
 </li>
-<li>Modify the <code>NoteController.cs</code> to include the ControllerBase class <code>RedirectToAction</code> method, which redirects to the index page so the user can see what was just saved. Refer to the example code snippet below. For more infromation, see the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction?view=aspnetcore-2.2">Microsoft .NET API Browser Documentation</a></li>
+<li>Modify the <code>NoteController.cs</code> to include the ControllerBase class <code>RedirectToAction</code> method, which redirects to the index page so the user can see what was just saved. For more information on the ControllerBase class, see the <a href="https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase.redirecttoaction?view=aspnetcore-2.2">Microsoft .NET API Browser Documentation</a>. 
+</br>
+</br>
+Refer to the example code snippet below.</li>
 <pre>
 // NoteController.cs
 namespace NetFrameworkApp.Controllers
